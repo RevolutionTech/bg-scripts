@@ -6,6 +6,8 @@ from nltk.corpus import words
 WORD_LENGTH_MIN = 4
 WORD_LENGTH_MAX = 6
 NGRAM_LENGTH_MIN = 2
+NGRAM_LETTER_EMPTY = "█"
+NGRAM_LETTER_SEPARATOR = " "
 NGRAM_MOST_COMMON_NUM = 10
 
 def generate_ngrams_for_word(word: str) -> List[str]:
@@ -14,7 +16,14 @@ def generate_ngrams_for_word(word: str) -> List[str]:
     word_len = len(word)
     for ngram_start_pos in range(word_len + 1 - NGRAM_LENGTH_MIN):
         for ngram_length in range(NGRAM_LENGTH_MIN, word_len + 1 - ngram_start_pos):
-            ngrams.append(f"{ngram_start_pos}-{word[ngram_start_pos:ngram_start_pos + ngram_length]}")
+            ngram_letters = []
+            for ngram_letter_pos, letter in enumerate(word):
+                if ngram_letter_pos < ngram_start_pos or ngram_letter_pos >= ngram_start_pos + ngram_length:
+                    ngram_letters.append(NGRAM_LETTER_EMPTY)
+                else:
+                    ngram_letters.append(letter)
+            ngram = NGRAM_LETTER_SEPARATOR.join(ngram_letters).upper()
+            ngrams.append(ngram)
 
     return ngrams
 
