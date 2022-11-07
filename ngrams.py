@@ -1,21 +1,24 @@
 from collections import Counter, defaultdict
 from typing import List
+import csv
+import os
 
 from nltk.corpus import words
 
+SCRATCH_DIR = "scratch"
 WORD_LENGTH_MIN = 4
 WORD_LENGTH_MAX = 6
 NGRAM_LENGTH_MIN = 2
 NGRAM_LETTER_EMPTY = "█"
 NGRAM_LETTER_SEPARATOR = " "
-NGRAM_MOST_COMMON_NUM = 10
+NGRAM_FREQUENCY_MIN = 30
 
 def generate_ngrams_for_word(word: str) -> List[str]:
     ngrams = []
 
     word_len = len(word)
     for ngram_start_pos in range(word_len + 1 - NGRAM_LENGTH_MIN):
-        for ngram_length in range(NGRAM_LENGTH_MIN, word_len + 1 - ngram_start_pos):
+        for ngram_length in range(NGRAM_LENGTH_MIN, min(word_len + 1 - ngram_start_pos, word_len - 1)):
             ngram_letters = []
             for ngram_letter_pos, letter in enumerate(word):
                 if ngram_letter_pos < ngram_start_pos or ngram_letter_pos >= ngram_start_pos + ngram_length:
@@ -44,11 +47,22 @@ def runscript():
     word_len_frequency, positional_ngrams = generate_positional_ngrams()
 
     for word_len in range(WORD_LENGTH_MIN, WORD_LENGTH_MAX + 1):
-        print(f"{word_len}-Letter word\n===")
+        filename = os.path.join(SCRATCH_DIR, f"word-{word_len}.csv")
+        print(f"Writing {filename}...")
+
+        with open(filename, "w") as f:
+            csvwriter = csv.writer(f)
+            csvwriter.writerow(["Ngram", "Frequency"])
+
+            ngram_counter = positional_ngrams[word_len]
+            for ngram, frequency in ngram_counter.most_common():
+                if frequency < NGRAM_FREQUENCY_MIN:
+                    # We don't care about incredibly rare ngrams
+                    break
+                csvwriter.writerow((ngram, frequency))
+
         word_count = word_len_frequency[word_len]
         print("Total words:", word_count)
-        ngram_counter = positional_ngrams[word_len]
-        print("Most common ngrams:", ngram_counter.most_common(NGRAM_MOST_COMMON_NUM), "\n")
 
 if __name__ == "__main__":
     runscript()
