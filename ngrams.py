@@ -6,6 +6,7 @@ import os
 from nltk.corpus import words
 
 SCRATCH_DIR = "scratch"
+PROTOTYPE_ITERATION = 1
 WORD_LENGTH_MIN = 4
 WORD_LENGTH_MAX = 6
 NGRAM_LENGTH_MIN = 2
@@ -69,17 +70,18 @@ def runscript():
 
         with open(filename, "w") as f:
             letter_headers = [f"{make_ordinal(i + 1)} Letter" for i in range(word_len)]
-            headers = [*letter_headers, "Frequency"]
+            headers = ["Card ID", *letter_headers, "Frequency"]
             csvwriter = csv.writer(f)
             csvwriter.writerow(headers)
 
             ngram_counter = positional_ngrams[word_len]
-            for ngram, frequency in ngram_counter.most_common():
+            for i, (ngram, frequency) in enumerate(ngram_counter.most_common(), 1):
                 if frequency < NGRAM_FREQUENCY_MIN:
                     # We don't care about incredibly rare ngrams
                     break
+                card_id = f"{PROTOTYPE_ITERATION}-{word_len}-{str(i).zfill(4)}"
                 letter_cells = [letter.replace(NGRAM_LETTER_EMPTY, "") for letter in ngram]
-                csvwriter.writerow([*letter_cells, frequency])
+                csvwriter.writerow([card_id, *letter_cells, frequency])
 
         word_count = word_len_frequency[word_len]
         print("Total words:", word_count)
