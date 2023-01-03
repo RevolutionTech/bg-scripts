@@ -10,6 +10,7 @@ packages = [{include = "positional_ngrams"}]
 [tool.poetry.dependencies]
 python = "^3.8"
 nltk = "^3.7"
+fpdf = "^1.7.2"
 
 
 [build-system]
