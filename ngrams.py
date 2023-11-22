@@ -1,6 +1,7 @@
 from collections import Counter, defaultdict
 from typing import List
 import csv
+import itertools
 import os
 
 from nltk.corpus import words
@@ -34,11 +35,11 @@ def generate_ngrams_for_word(word: str) -> List[str]:
     ngrams = []
 
     word_len = len(word)
-    for ngram_start_pos in range(word_len + 1 - NGRAM_LENGTH_MIN):
-        for ngram_length in range(NGRAM_LENGTH_MIN, min(word_len + 1 - ngram_start_pos, word_len - 1)):
+    for ngram_length in range(NGRAM_LENGTH_MIN, word_len + 1 - NGRAM_LENGTH_MIN):
+        for blank_indices in itertools.combinations(range(word_len), ngram_length):
             ngram_letters = []
-            for ngram_letter_pos, letter in enumerate(word):
-                if ngram_letter_pos < ngram_start_pos or ngram_letter_pos >= ngram_start_pos + ngram_length:
+            for i, letter in enumerate(word):
+                if i in blank_indices:
                     ngram_letters.append(NGRAM_LETTER_EMPTY)
                 else:
                     ngram_letters.append(letter)
