@@ -11,11 +11,13 @@ MIN_OUTER_MARGIN = 15
 IMAGE_WIDTH = 84
 IMAGE_HEIGHT = 60
 
+
 def get_images(dir):
     for filename in sorted(os.listdir(dir)):
         name, ext = os.path.splitext(filename)
         if ext == f".{IMAGE_EXT}":
             yield filename
+
 
 def runscript():
     print("Generating PDF...")
@@ -35,10 +37,17 @@ def runscript():
         if image_for_page == 0:
             pdf.add_page()
 
-        pdf.image(full_filename, hor_margin + column * IMAGE_WIDTH, vert_margin + row * IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT)
+        pdf.image(
+            full_filename,
+            hor_margin + column * IMAGE_WIDTH,
+            vert_margin + row * IMAGE_HEIGHT,
+            IMAGE_WIDTH,
+            IMAGE_HEIGHT,
+        )
     pdf.output(os.path.join(SCRATCH_DIR, "output.pdf"), "F")
 
     print("PDF generated successfully!")
+
 
 if __name__ == "__main__":
     runscript()

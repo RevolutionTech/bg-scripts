@@ -13,6 +13,7 @@ NGRAM_LENGTH_MIN = 2
 NGRAM_LETTER_EMPTY = "█"
 NGRAM_FREQUENCY_MIN = 30
 
+
 def make_ordinal(n: int) -> str:
     """
     Convert an integer into its ordinal representation::
@@ -31,6 +32,7 @@ def make_ordinal(n: int) -> str:
         suffix = ["th", "st", "nd", "rd", "th"][min(n % 10, 4)]
     return str(n) + suffix
 
+
 def generate_ngrams_for_word(word: str) -> List[str]:
     ngrams = []
 
@@ -48,6 +50,7 @@ def generate_ngrams_for_word(word: str) -> List[str]:
 
     return ngrams
 
+
 def generate_positional_ngrams():
     word_len_frequency = Counter()
     positional_ngrams = defaultdict(Counter)
@@ -60,6 +63,7 @@ def generate_positional_ngrams():
             positional_ngrams[word_len].update(ngrams)
 
     return word_len_frequency, positional_ngrams
+
 
 def runscript():
     word_len_frequency, positional_ngrams = generate_positional_ngrams()
@@ -79,11 +83,14 @@ def runscript():
                 if frequency < NGRAM_FREQUENCY_MIN:
                     # We don't care about incredibly rare ngrams
                     break
-                letter_cells = [letter.replace(NGRAM_LETTER_EMPTY, "") for letter in ngram]
+                letter_cells = [
+                    letter.replace(NGRAM_LETTER_EMPTY, "") for letter in ngram
+                ]
                 csvwriter.writerow([*letter_cells, frequency])
 
         word_count = word_len_frequency[word_len]
         print("Total words:", word_count)
+
 
 if __name__ == "__main__":
     runscript()
