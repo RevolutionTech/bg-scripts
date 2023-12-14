@@ -8,12 +8,13 @@ from ngrams.constants import (
     NGRAM_LETTER_EMPTY,
     NGRAM_FREQUENCY_MIN,
 )
-from ngrams.generator import generate_positional_ngrams
+from ngrams.generator import NgramGenerator
 from ngrams.utils import make_ordinal
 
 
 def runscript():
-    word_len_frequency, positional_ngrams = generate_positional_ngrams()
+    ngrams = NgramGenerator()
+    ngrams.generate()
 
     for word_len in range(WORD_LENGTH_MIN, WORD_LENGTH_MAX + 1):
         filename = os.path.join(SCRATCH_DIR, f"word-{word_len}.csv")
@@ -25,8 +26,8 @@ def runscript():
             csvwriter = csv.writer(f)
             csvwriter.writerow(headers)
 
-            ngram_counter = positional_ngrams[word_len]
-            for ngram, frequency in ngram_counter.most_common():
+            ngrams_with_frequencies = ngrams.get_ngrams_with_frequencies(word_len)
+            for ngram, frequency in ngrams_with_frequencies:
                 if frequency < NGRAM_FREQUENCY_MIN:
                     # We don't care about incredibly rare ngrams
                     break
@@ -35,7 +36,7 @@ def runscript():
                 ]
                 csvwriter.writerow([*letter_cells, frequency])
 
-        word_count = word_len_frequency[word_len]
+        word_count = ngrams.get_frequencies(word_len)
         print("Total words:", word_count)
 
 
