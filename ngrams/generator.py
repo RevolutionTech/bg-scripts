@@ -1,6 +1,5 @@
 import itertools
 from collections import Counter, defaultdict
-from typing import List
 
 from nltk.corpus import words
 
@@ -14,28 +13,29 @@ from ngrams.constants import (
 
 class NgramGenerator:
     def __init__(self):
+        self._letter_frequency = Counter()
         self._word_len_frequency = Counter()
         self._positional_ngrams = defaultdict(Counter)
 
-    @staticmethod
-    def generate_ngrams_for_word(word: str) -> List[str]:
-        ngrams = []
-
+    def generate_ngrams_for_word(self, word: str):
         word_len = len(word)
         for ngram_length in range(NGRAM_LENGTH_MIN, word_len + 1 - NGRAM_LENGTH_MIN):
             for blank_indices in itertools.combinations(range(word_len), ngram_length):
                 ngram_letters = []
                 for i, letter in enumerate(word):
+                    uletter = letter.upper()
                     if i in blank_indices:
                         ngram_letters.append(NGRAM_LETTER_EMPTY)
+                        self._letter_frequency[uletter] += 1
                     else:
-                        ngram_letters.append(letter)
-                ngram = "".join(ngram_letters).upper()
-                ngrams.append(ngram)
+                        ngram_letters.append(uletter)
+                ngram = "".join(ngram_letters)
+                self._positional_ngrams[word_len][ngram] += 1
 
-        return ngrams
+    def get_letter_counts(self):
+        return sorted(self._letter_frequency.items())
 
-    def get_frequencies(self, word_length):
+    def get_word_count(self, word_length):
         return self._word_len_frequency[word_length]
 
     def get_ngrams_with_frequencies(self, word_length):
@@ -47,5 +47,4 @@ class NgramGenerator:
             word_len = len(word)
             if WORD_LENGTH_MIN <= word_len <= WORD_LENGTH_MAX:
                 self._word_len_frequency[word_len] += 1
-                ngrams = self.generate_ngrams_for_word(word)
-                self._positional_ngrams[word_len].update(ngrams)
+                self.generate_ngrams_for_word(word)
