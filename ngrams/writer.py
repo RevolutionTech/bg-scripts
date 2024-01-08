@@ -1,5 +1,7 @@
+import contextlib
 import csv
 import os
+from typing import List
 
 from ngrams.constants import (
     SCRATCH_DIR,
@@ -16,27 +18,27 @@ class NgramWriter:
     def __init__(self, ngrams: NgramGenerator):
         self.ngrams = ngrams
 
-    def write_letter_counts(self):
-        filename = os.path.join(SCRATCH_DIR, "letters.csv")
-        print(f"Writing {filename}...")
+    @contextlib.contextmanager
+    def write_csv(self, filename: str, headers: List[str]):
+        full_filename = os.path.join(SCRATCH_DIR, filename)
+        print(f"Writing {full_filename}...")
 
-        with open(filename, "w") as f:
+        with open(full_filename, "w") as f:
             csvwriter = csv.writer(f)
-            csvwriter.writerow(["Letter", "Frequency"])
+            csvwriter.writerow(headers)
+            yield csvwriter
 
+    def write_letter_counts(self):
+        with self.write_csv("letters.csv", ["Letter", "Frequency"]) as csvwriter:
             for letter, count in self.ngrams.get_letter_counts():
                 csvwriter.writerow([letter, count])
 
     def write_ngrams(self, word_len: int):
-        filename = os.path.join(SCRATCH_DIR, f"word-{word_len}.csv")
-        print(f"Writing {filename}...")
+        filename = f"word-{word_len}.csv"
+        letter_headers = [f"{make_ordinal(i + 1)} Letter" for i in range(word_len)]
+        headers = [*letter_headers, "Frequency"]
 
-        with open(filename, "w") as f:
-            letter_headers = [f"{make_ordinal(i + 1)} Letter" for i in range(word_len)]
-            headers = [*letter_headers, "Frequency"]
-            csvwriter = csv.writer(f)
-            csvwriter.writerow(headers)
-
+        with self.write_csv(filename, headers) as csvwriter:
             ngrams_with_frequencies = self.ngrams.get_ngrams_with_frequencies(word_len)
             for ngram, frequency in ngrams_with_frequencies:
                 if frequency < NGRAM_FREQUENCY_MIN:
