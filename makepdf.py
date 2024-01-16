@@ -35,13 +35,15 @@ def get_quantities(dir: str):
     return quantities
 
 
-def generate_pdf(image_type: str, image_width: int, image_height: int):
+def generate_pdf(
+    image_type: str, image_width: int, image_height: int, padding: int = 0
+):
     output_filename = f"{image_type}.pdf"
     images_dir = os.path.join(BASE_IMAGES_DIR, image_type)
-    page_num_rows = (PAGE_HEIGHT - 2 * MIN_OUTER_MARGIN) // image_height
-    page_num_cols = (PAGE_WIDTH - 2 * MIN_OUTER_MARGIN) // image_width
-    hor_margin = (PAGE_WIDTH - (page_num_cols * image_width)) // 2
-    vert_margin = (PAGE_HEIGHT - (page_num_rows * image_height)) // 2
+    page_num_rows = (PAGE_HEIGHT - 2 * MIN_OUTER_MARGIN) // (image_height + padding)
+    page_num_cols = (PAGE_WIDTH - 2 * MIN_OUTER_MARGIN) // (image_width + padding)
+    hor_margin = (PAGE_WIDTH - (page_num_cols * (image_width + padding))) // 2
+    vert_margin = (PAGE_HEIGHT - (page_num_rows * (image_height + padding))) // 2
     images_per_page = page_num_rows * page_num_cols
 
     quantities = get_quantities(images_dir)
@@ -64,8 +66,8 @@ def generate_pdf(image_type: str, image_width: int, image_height: int):
 
             pdf.image(
                 full_filename,
-                hor_margin + column * image_width,
-                vert_margin + row * image_height,
+                hor_margin + column * (image_width + padding),
+                vert_margin + row * (image_height + padding),
                 image_width,
                 image_height,
             )
@@ -76,5 +78,6 @@ def generate_pdf(image_type: str, image_width: int, image_height: int):
 
 
 if __name__ == "__main__":
+    generate_pdf("boards", 144, 108, padding=15)
     generate_pdf("letters", 60, 84)
     generate_pdf("words", 84, 60)
