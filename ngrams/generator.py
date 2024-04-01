@@ -1,9 +1,11 @@
 import itertools
 from collections import Counter, defaultdict
 
-from nltk.corpus import words
+from wordfreq import top_n_list
 
 from ngrams.constants import (
+    LANGUAGE_CODE,
+    NUM_TOP_WORDS,
     WORD_LENGTH_MIN,
     WORD_LENGTH_MAX,
     NGRAM_LENGTH_MIN,
@@ -43,8 +45,11 @@ class NgramGenerator:
         return ngram_counter.most_common()
 
     def generate(self):
-        for word in words.words():
+        for word in top_n_list(LANGUAGE_CODE, NUM_TOP_WORDS):
             word_len = len(word)
-            if WORD_LENGTH_MIN <= word_len <= WORD_LENGTH_MAX:
+            if (
+                WORD_LENGTH_MIN <= word_len <= WORD_LENGTH_MAX
+                and all(letter.isascii() and letter.isalpha() and letter.islower() for letter in word)
+            ):
                 self._word_len_frequency[word_len] += 1
                 self.generate_ngrams_for_word(word)
