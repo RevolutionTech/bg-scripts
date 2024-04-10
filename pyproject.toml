@@ -8,6 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
+nltk = "^3.8.1"
 fpdf = "^1.7.2"
 wordfreq = "^3.1.1"
 
