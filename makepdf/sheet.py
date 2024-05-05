@@ -22,6 +22,8 @@ class Sheet:
         self.vert_margin = (PAGE_HEIGHT - (self.page_num_rows * (self.image_height + self.padding))) // 2
         self.images_per_page = self.page_num_rows * self.page_num_cols
 
+        self.pdf = FPDF()
+
     def _get_quantities(self):
         quantities = defaultdict(lambda: 1)
 
@@ -43,13 +45,23 @@ class Sheet:
             if ext == f".{IMAGE_EXT}":
                 yield filename
 
+    def _add_image_to_pdf(self, image_for_page: int, full_filename: str):
+        row = image_for_page // self.page_num_cols
+        column = image_for_page % self.page_num_cols
+        self.pdf.image(
+            full_filename,
+            self.hor_margin + column * (self.image_width + self.padding),
+            self.vert_margin + row * (self.image_height + self.padding),
+            self.image_width,
+            self.image_height,
+        )
+
     def generate_pdf(self):
         quantities = self._get_quantities()
 
         print(f"Generating PDF {self.output_filename}...")
 
         i = 0
-        pdf = FPDF()
         for filename in self._get_images():
             card_id, _ = os.path.splitext(filename)
             full_filename = os.path.join(self.images_dir, filename)
@@ -57,19 +69,10 @@ class Sheet:
             quantity = quantities[card_id]
             for _ in range(quantity):
                 image_for_page = i % self.images_per_page
-                row = image_for_page // self.page_num_cols
-                column = image_for_page % self.page_num_cols
                 if image_for_page == 0:
-                    pdf.add_page()
-
-                pdf.image(
-                    full_filename,
-                    self.hor_margin + column * (self.image_width + self.padding),
-                    self.vert_margin + row * (self.image_height + self.padding),
-                    self.image_width,
-                    self.image_height,
-                )
+                    self.pdf.add_page()
+                self._add_image_to_pdf(image_for_page, full_filename)
                 i += 1
-        pdf.output(os.path.join(SCRATCH_DIR, self.output_filename), "F")
+        self.pdf.output(os.path.join(SCRATCH_DIR, self.output_filename), "F")
 
         print("PDF generated successfully!")
