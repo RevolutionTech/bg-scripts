@@ -4,13 +4,17 @@ from collections import defaultdict
 
 from fpdf import FPDF
 
-from makepdf.constants import SCRATCH_DIR, BASE_IMAGES_DIR, IMAGE_EXT, PAGE_WIDTH, PAGE_HEIGHT, MIN_OUTER_MARGIN
+from makepdf.constants import (
+    SCRATCH_DIR, BASE_IMAGES_DIR, BACK_IMAGE_FILENAME, IMAGE_EXT, PAGE_WIDTH, PAGE_HEIGHT, MIN_OUTER_MARGIN
+)
 
 
 class Sheet:
-    def __init__(self, image_type: str, image_width: int, image_height: int, padding: int = 0):
+    def __init__(self, image_type: str, image_width: int, image_height: int, padding: int = 0, has_back: bool = False):
         self.output_filename = f"{image_type}.pdf"
         self.images_dir = os.path.join(BASE_IMAGES_DIR, image_type)
+        self.has_back = has_back
+        self.back_filename = os.path.join(self.images_dir, f"{BACK_IMAGE_FILENAME}.png")
 
         self.image_width = image_width
         self.image_height = image_height
@@ -42,7 +46,7 @@ class Sheet:
     def _get_images(self):
         for filename in sorted(os.listdir(self.images_dir)):
             name, ext = os.path.splitext(filename)
-            if ext == f".{IMAGE_EXT}":
+            if ext == f".{IMAGE_EXT}" and (not self.has_back or name != BACK_IMAGE_FILENAME):
                 yield filename
 
     def _add_image_to_pdf(self, image_for_page: int, full_filename: str):
@@ -55,6 +59,11 @@ class Sheet:
             self.image_width,
             self.image_height,
         )
+
+    def _add_back_page(self):
+        self.pdf.add_page()
+        for i in range(self.images_per_page):
+            self._add_image_to_pdf(i, self.back_filename)
 
     def generate_pdf(self):
         quantities = self._get_quantities()
@@ -69,8 +78,14 @@ class Sheet:
             quantity = quantities[card_id]
             for _ in range(quantity):
                 image_for_page = i % self.images_per_page
-                if image_for_page == 0:
+
+                # Handle the start of a new page
+                is_new_page = image_for_page == 0
+                if is_new_page:
+                    if self.has_back:
+                        self._add_back_page()
                     self.pdf.add_page()
+
                 self._add_image_to_pdf(image_for_page, full_filename)
                 i += 1
         self.pdf.output(os.path.join(SCRATCH_DIR, self.output_filename), "F")
