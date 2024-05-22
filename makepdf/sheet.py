@@ -35,8 +35,12 @@ class Sheet:
 
         self.page_num_rows = (PAGE_HEIGHT - 2 * MIN_OUTER_MARGIN) // (self.image_height + self.padding)
         self.page_num_cols = (PAGE_WIDTH - 2 * MIN_OUTER_MARGIN) // (self.image_width + self.padding)
-        self.hor_margin = (PAGE_WIDTH - (self.page_num_cols * (self.image_width + self.padding))) // 2
-        self.vert_margin = (PAGE_HEIGHT - (self.page_num_rows * (self.image_height + self.padding))) // 2
+        self.hor_margin = (
+            PAGE_WIDTH - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
+        ) // 2
+        self.vert_margin = (
+            PAGE_HEIGHT - (self.page_num_rows * self.image_height + (self.page_num_rows - 1) * self.padding)
+        ) // 2
         self.images_per_page = self.page_num_rows * self.page_num_cols
 
         self.pdf = FPDF()
