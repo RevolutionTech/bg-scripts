@@ -2,7 +2,7 @@ from makepdf.sheet import BackType, Sheet
 
 
 def runscript():
-    boards = Sheet("boards", 144, 108, padding=15)
+    boards = Sheet("boards", 144, 104, padding=15)
     boards.generate_pdf()
 
     letters = Sheet("letters", 60, 84, back_type=BackType.SHARED)
