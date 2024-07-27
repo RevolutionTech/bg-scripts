@@ -6,7 +6,7 @@ from collections import defaultdict
 from fpdf import FPDF
 
 from makepdf.constants import (
-    SCRATCH_DIR, BASE_IMAGES_DIR, BACK_IMAGE_FILENAME, IMAGE_EXT, PAGE_WIDTH, PAGE_HEIGHT, MIN_OUTER_MARGIN
+    SCRATCH_DIR, BASE_IMAGES_DIR, BACK_IMAGE_FILENAME, IMAGE_EXT, PAGE_WIDTH, PAGE_HEIGHT, DEFAULT_OUTER_MARGIN
 )
 
 
@@ -29,7 +29,8 @@ class Sheet:
             image_height: int,
             orientation: Orientation = Orientation.PORTRAIT,
             padding: int = 0,
-            back_type: BackType = BackType.NONE
+            back_type: BackType = BackType.NONE,
+            outer_margin: int = DEFAULT_OUTER_MARGIN
     ):
         self.output_filename = f"{image_type}.pdf"
         self.images_dir = os.path.join(BASE_IMAGES_DIR, image_type)
@@ -42,8 +43,8 @@ class Sheet:
         page_height = PAGE_HEIGHT if orientation == Orientation.PORTRAIT else PAGE_WIDTH
         page_width = PAGE_WIDTH if orientation == Orientation.PORTRAIT else PAGE_HEIGHT
 
-        self.page_num_rows = (page_height - 2 * MIN_OUTER_MARGIN) // (self.image_height + self.padding)
-        self.page_num_cols = (page_width - 2 * MIN_OUTER_MARGIN) // (self.image_width + self.padding)
+        self.page_num_rows = (page_height - 2 * outer_margin) // (self.image_height + self.padding)
+        self.page_num_cols = (page_width - 2 * outer_margin) // (self.image_width + self.padding)
         self.hor_margin = (
             page_width - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
         ) // 2

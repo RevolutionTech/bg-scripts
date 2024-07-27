@@ -7,4 +7,4 @@ BACK_IMAGE_FILENAME = "back"
 IMAGE_EXT = "png"
 PAGE_WIDTH = 210  # https://stackoverflow.com/a/27327984/3241924
 PAGE_HEIGHT = 297  # https://stackoverflow.com/a/27327984/3241924
-MIN_OUTER_MARGIN = 15
+DEFAULT_OUTER_MARGIN = 15
