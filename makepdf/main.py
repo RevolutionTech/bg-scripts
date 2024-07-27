@@ -1,8 +1,8 @@
-from makepdf.sheet import BackType, Sheet
+from makepdf.sheet import Orientation, BackType, Sheet
 
 
 def runscript():
-    boards = Sheet("boards", 144, 104, padding=15)
+    boards = Sheet("boards", 238, 135, orientation=Orientation.LANDSCAPE, padding=0)
     boards.generate_pdf()
 
     letters = Sheet("letters", 60, 84, back_type=BackType.SHARED)

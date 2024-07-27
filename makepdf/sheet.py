@@ -10,6 +10,11 @@ from makepdf.constants import (
 )
 
 
+class Orientation(enum.Enum):
+    PORTRAIT = "portrait"
+    LANDSCAPE = "landscape"
+
+
 class BackType(enum.Enum):
     NONE = "none"
     SHARED = "shared"
@@ -22,6 +27,7 @@ class Sheet:
             image_type: str,
             image_width: int,
             image_height: int,
+            orientation: Orientation = Orientation.PORTRAIT,
             padding: int = 0,
             back_type: BackType = BackType.NONE
     ):
@@ -33,17 +39,20 @@ class Sheet:
         self.image_height = image_height
         self.padding = padding
 
-        self.page_num_rows = (PAGE_HEIGHT - 2 * MIN_OUTER_MARGIN) // (self.image_height + self.padding)
-        self.page_num_cols = (PAGE_WIDTH - 2 * MIN_OUTER_MARGIN) // (self.image_width + self.padding)
+        page_height = PAGE_HEIGHT if orientation == Orientation.PORTRAIT else PAGE_WIDTH
+        page_width = PAGE_WIDTH if orientation == Orientation.PORTRAIT else PAGE_HEIGHT
+
+        self.page_num_rows = (page_height - 2 * MIN_OUTER_MARGIN) // (self.image_height + self.padding)
+        self.page_num_cols = (page_width - 2 * MIN_OUTER_MARGIN) // (self.image_width + self.padding)
         self.hor_margin = (
-            PAGE_WIDTH - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
+            page_width - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
         ) // 2
         self.vert_margin = (
-            PAGE_HEIGHT - (self.page_num_rows * self.image_height + (self.page_num_rows - 1) * self.padding)
+            page_height - (self.page_num_rows * self.image_height + (self.page_num_rows - 1) * self.padding)
         ) // 2
         self.images_per_page = self.page_num_rows * self.page_num_cols
 
-        self.pdf = FPDF()
+        self.pdf = FPDF(orientation=orientation.value)
 
     def _get_quantities(self):
         quantities = defaultdict(lambda: 1)
