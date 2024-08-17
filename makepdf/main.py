@@ -11,7 +11,7 @@ def runscript():
     words = Sheet("words", 84, 41, back_type=BackType.SHARED)
     words.generate_pdf()
 
-    goals = Sheet("goals", 84, 60, back_type=BackType.SHARED)
+    goals = Sheet("goals", 84, 60, back_type=BackType.UNIQUE)
     goals.generate_pdf()
 
 
