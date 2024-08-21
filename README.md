@@ -1,3 +1,3 @@
-# Positional n-grams
+# BG Scripts
 
-#### Find the most common n-grams by position
+#### Various scripts for board game prototypes

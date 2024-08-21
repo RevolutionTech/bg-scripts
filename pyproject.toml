@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "positional-ngrams"
+name = "bg-scripts"
 version = "0.1.0"
-description = "Find the most common n-grams by position"
+description = "Various scripts for board game prototypes"
 authors = ["Lucas Connors <lucas.revolutiontech@gmail.com>"]
 license = "ISC"
 readme = "README.md"
