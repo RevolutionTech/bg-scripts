@@ -1,7 +1,7 @@
 from makepdf.sheet import Orientation, BackType, Sheet
 
 
-def runscript():
+def make_telegram_pdfs():
     boards = Sheet("boards", 139, 156, orientation=Orientation.LANDSCAPE, padding=3, outer_margin=5)
     boards.generate_pdf()
 
@@ -13,6 +13,19 @@ def runscript():
 
     goals = Sheet("goals", 84, 60, back_type=BackType.UNIQUE)
     goals.generate_pdf()
+
+
+def make_category_matchmaker_pdfs():
+    objects = Sheet("objects", 84, 60, back_type=BackType.SHARED)
+    objects.generate_pdf()
+
+    categories = Sheet("categories", 84, 60, back_type=BackType.SHARED)
+    categories.generate_pdf()
+
+
+def runscript():
+    make_telegram_pdfs()
+    make_category_matchmaker_pdfs()
 
 
 if __name__ == "__main__":
