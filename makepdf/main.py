@@ -22,6 +22,9 @@ def make_category_matchmaker_pdfs():
     categories = Sheet("categories", 84, 60, back_type=BackType.SHARED)
     categories.generate_pdf()
 
+    numbers = Sheet("numbers", 64, 32, back_type=BackType.UNIQUE)
+    numbers.generate_pdf()
+
 
 def runscript():
     make_telegram_pdfs()
