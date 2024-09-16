@@ -5,10 +5,10 @@ def make_telegram_pdfs():
     boards = Sheet("boards", 138, 179, orientation=Orientation.LANDSCAPE, padding=2, outer_margin=5)
     boards.generate_pdf()
 
-    letters = Sheet("letters", 60, 84, back_type=BackType.SHARED)
+    letters = Sheet("letters", 60, 84, back_type=BackType.UNIQUE)
     letters.generate_pdf()
 
-    words = Sheet("words", 84, 41, back_type=BackType.SHARED)
+    words = Sheet("words", 84, 60, back_type=BackType.UNIQUE)
     words.generate_pdf()
 
     goals = Sheet("goals", 84, 60, back_type=BackType.UNIQUE)
