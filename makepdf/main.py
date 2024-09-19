@@ -1,31 +1,32 @@
+from makepdf.constants import PAGE_SIZE_A4
 from makepdf.sheet import Orientation, BackType, Sheet
 
 
 def make_telegram_pdfs():
-    boards = Sheet("boards", 138, 179, orientation=Orientation.LANDSCAPE, padding=2, outer_margin=5)
+    boards = Sheet("boards", 124, 200, orientation=Orientation.LANDSCAPE, padding=2, outer_margin=5)
     boards.generate_pdf()
 
-    letters = Sheet("letters", 60, 84, back_type=BackType.UNIQUE)
+    letters = Sheet("letters", 60, 84, page_size=PAGE_SIZE_A4, back_type=BackType.UNIQUE)
     letters.generate_pdf()
 
-    words = Sheet("words", 84, 60, back_type=BackType.UNIQUE)
+    words = Sheet("words", 84, 60, page_size=PAGE_SIZE_A4, back_type=BackType.UNIQUE)
     words.generate_pdf()
 
-    goals = Sheet("goals", 84, 60, back_type=BackType.UNIQUE)
+    goals = Sheet("goals", 84, 60, page_size=PAGE_SIZE_A4, back_type=BackType.UNIQUE)
     goals.generate_pdf()
 
-    solo = Sheet("solo", 60, 84, back_type=BackType.SHARED)
+    solo = Sheet("solo", 60, 84, page_size=PAGE_SIZE_A4, back_type=BackType.SHARED)
     solo.generate_pdf()
 
 
 def make_category_matchmaker_pdfs():
-    objects = Sheet("objects", 84, 60, back_type=BackType.SHARED)
+    objects = Sheet("objects", 84, 60, page_size=PAGE_SIZE_A4, back_type=BackType.SHARED)
     objects.generate_pdf()
 
-    categories = Sheet("categories", 84, 60, back_type=BackType.SHARED)
+    categories = Sheet("categories", 84, 60, page_size=PAGE_SIZE_A4, back_type=BackType.SHARED)
     categories.generate_pdf()
 
-    numbers = Sheet("numbers", 64, 32, back_type=BackType.UNIQUE)
+    numbers = Sheet("numbers", 64, 32, page_size=PAGE_SIZE_A4, back_type=BackType.UNIQUE)
     numbers.generate_pdf()
 
 
