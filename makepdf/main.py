@@ -14,6 +14,9 @@ def make_telegram_pdfs():
     goals = Sheet("goals", 84, 60, back_type=BackType.UNIQUE)
     goals.generate_pdf()
 
+    solo = Sheet("solo", 60, 84, back_type=BackType.SHARED)
+    solo.generate_pdf()
+
 
 def make_category_matchmaker_pdfs():
     objects = Sheet("objects", 84, 60, back_type=BackType.SHARED)
