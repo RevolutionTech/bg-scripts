@@ -6,8 +6,8 @@ from collections import defaultdict
 from fpdf import FPDF
 
 from makepdf.constants import (
-    SCRATCH_DIR, BASE_IMAGES_DIR, BACK_IMAGE_FILENAME, IMAGE_EXT, PAGE_SIZE_A4, PAGE_SIZE_LETTER, A4_PDF_WIDTH,
-    A4_PDF_HEIGHT, LETTER_PDF_WIDTH, LETTER_PDF_HEIGHT, DEFAULT_OUTER_MARGIN
+    SCRATCH_DIR, BASE_IMAGES_DIR, BACK_IMAGE_FILENAME, IMAGE_EXT, PAGE_SIZE_LETTER, PAGE_WIDTH, PAGE_HEIGHT,
+    DEFAULT_OUTER_MARGIN
 )
 
 
@@ -28,7 +28,6 @@ class Sheet:
             image_type: str,
             image_width: int,
             image_height: int,
-            page_size: str = PAGE_SIZE_LETTER,
             orientation: Orientation = Orientation.PORTRAIT,
             padding: int = 0,
             back_type: BackType = BackType.NONE,
@@ -42,10 +41,8 @@ class Sheet:
         self.image_height = image_height
         self.padding = padding
 
-        pdf_height = A4_PDF_HEIGHT if page_size == PAGE_SIZE_A4 else LETTER_PDF_HEIGHT
-        pdf_width = A4_PDF_WIDTH if page_size == PAGE_SIZE_A4 else LETTER_PDF_WIDTH
-        page_height = pdf_height if orientation == Orientation.PORTRAIT else pdf_width
-        page_width = pdf_width if orientation == Orientation.PORTRAIT else pdf_height
+        page_height = PAGE_HEIGHT if orientation == Orientation.PORTRAIT else PAGE_WIDTH
+        page_width = PAGE_WIDTH if orientation == Orientation.PORTRAIT else PAGE_HEIGHT
 
         self.page_num_rows = (page_height - 2 * outer_margin) // (self.image_height + self.padding)
         self.page_num_cols = (page_width - 2 * outer_margin) // (self.image_width + self.padding)
@@ -57,7 +54,7 @@ class Sheet:
         ) // 2
         self.images_per_page = self.page_num_rows * self.page_num_cols
 
-        self.pdf = FPDF(orientation=orientation.value, format=page_size)
+        self.pdf = FPDF(orientation=orientation.value, format=PAGE_SIZE_LETTER)
 
     def _get_quantities(self):
         quantities = defaultdict(lambda: 1)
