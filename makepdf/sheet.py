@@ -32,7 +32,7 @@ class Sheet:
             padding: int = 0,
             back_type: BackType = BackType.NONE,
             outer_margin: int = DEFAULT_OUTER_MARGIN,
-            show_cut_lines: bool = False
+            show_cut_lines: bool = True
     ):
         self.output_filename = f"{image_type}.pdf"
         self.images_dir = os.path.join(BASE_IMAGES_DIR, image_type)

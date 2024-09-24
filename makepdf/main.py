@@ -2,30 +2,30 @@ from makepdf.sheet import Orientation, BackType, Sheet
 
 
 def make_telegram_pdfs():
-    boards = Sheet("boards", 124, 200, orientation=Orientation.LANDSCAPE, padding=2, outer_margin=5)
+    boards = Sheet("boards", 124, 200, orientation=Orientation.LANDSCAPE, padding=2, outer_margin=5, show_cut_lines=False)
     boards.generate_pdf()
 
-    letters = Sheet("letters", 52, 72, orientation=Orientation.LANDSCAPE, back_type=BackType.UNIQUE, outer_margin=0, show_cut_lines=True)
+    letters = Sheet("letters", 52, 72, orientation=Orientation.LANDSCAPE, back_type=BackType.UNIQUE, outer_margin=0)
     letters.generate_pdf()
 
-    words = Sheet("words", 72, 52, back_type=BackType.UNIQUE, outer_margin=0, show_cut_lines=True)
+    words = Sheet("words", 72, 52, back_type=BackType.UNIQUE, outer_margin=0)
     words.generate_pdf()
 
-    goals = Sheet("goals", 72, 52, back_type=BackType.UNIQUE, outer_margin=0, show_cut_lines=True)
+    goals = Sheet("goals", 72, 52, back_type=BackType.UNIQUE, outer_margin=0)
     goals.generate_pdf()
 
-    solo = Sheet("solo", 52, 72, back_type=BackType.SHARED, show_cut_lines=True)
+    solo = Sheet("solo", 52, 72, back_type=BackType.SHARED)
     solo.generate_pdf()
 
 
 def make_category_matchmaker_pdfs():
-    objects = Sheet("objects", 89, 62, back_type=BackType.SHARED, outer_margin=5)
+    objects = Sheet("objects", 89, 62, back_type=BackType.SHARED, outer_margin=5, show_cut_lines=False)
     objects.generate_pdf()
 
-    categories = Sheet("categories", 89, 62, back_type=BackType.SHARED, outer_margin=5)
+    categories = Sheet("categories", 89, 62, back_type=BackType.SHARED, outer_margin=5, show_cut_lines=False)
     categories.generate_pdf()
 
-    numbers = Sheet("numbers", 66, 33, back_type=BackType.UNIQUE)
+    numbers = Sheet("numbers", 66, 33, back_type=BackType.UNIQUE, show_cut_lines=False)
     numbers.generate_pdf()
 
 
