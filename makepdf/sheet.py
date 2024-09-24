@@ -153,9 +153,11 @@ class Sheet:
                         self._add_back_page(filenames_for_back)
                     filenames_for_back = []
 
-        # Final page of backs (if necessary)
-        if not is_page_end and self.back_type != BackType.NONE:
-            self._add_back_page(filenames_for_back)
+        # Final partial final page
+        if not is_page_end:
+            self._add_cut_lines_to_pdf()
+            if self.back_type != BackType.NONE:
+                self._add_back_page(filenames_for_back)
 
         self.pdf.output(os.path.join(SCRATCH_DIR, self.output_filename), "F")
 
