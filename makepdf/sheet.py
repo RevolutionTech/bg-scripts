@@ -101,7 +101,7 @@ class Sheet:
                 if line_y in (0, self.page_height):
                     continue
 
-                self.pdf.dashed_line(0, line_y, self.page_width, line_y)
+                self.pdf.line(0, line_y, self.page_width, line_y)
             for col_line in range(self.page_num_cols + 1):
                 line_x = self.hor_margin + col_line * (self.image_width + self.padding) - self.padding // 2
 
@@ -109,7 +109,7 @@ class Sheet:
                 if line_x in (0, self.page_width):
                     continue
 
-                self.pdf.dashed_line(line_x, 0, line_x, self.page_height)
+                self.pdf.line(line_x, 0, line_x, self.page_height)
 
     def _add_back_page(self, filenames):
         self.pdf.add_page()
