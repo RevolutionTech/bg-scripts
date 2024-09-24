@@ -31,7 +31,8 @@ class Sheet:
             orientation: Orientation = Orientation.PORTRAIT,
             padding: int = 0,
             back_type: BackType = BackType.NONE,
-            outer_margin: int = DEFAULT_OUTER_MARGIN
+            outer_margin: int = DEFAULT_OUTER_MARGIN,
+            show_cut_lines: bool = False
     ):
         self.output_filename = f"{image_type}.pdf"
         self.images_dir = os.path.join(BASE_IMAGES_DIR, image_type)
@@ -40,17 +41,17 @@ class Sheet:
         self.image_width = image_width
         self.image_height = image_height
         self.padding = padding
+        self.show_cut_lines = show_cut_lines
 
-        page_height = PAGE_HEIGHT if orientation == Orientation.PORTRAIT else PAGE_WIDTH
-        page_width = PAGE_WIDTH if orientation == Orientation.PORTRAIT else PAGE_HEIGHT
-
-        self.page_num_rows = (page_height - 2 * outer_margin) // (self.image_height + self.padding)
-        self.page_num_cols = (page_width - 2 * outer_margin) // (self.image_width + self.padding)
+        self.page_height = PAGE_HEIGHT if orientation == Orientation.PORTRAIT else PAGE_WIDTH
+        self.page_width = PAGE_WIDTH if orientation == Orientation.PORTRAIT else PAGE_HEIGHT
+        self.page_num_rows = (self.page_height - 2 * outer_margin) // (self.image_height + self.padding)
+        self.page_num_cols = (self.page_width - 2 * outer_margin) // (self.image_width + self.padding)
         self.hor_margin = (
-            page_width - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
+            self.page_width - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
         ) // 2
         self.vert_margin = (
-            page_height - (self.page_num_rows * self.image_height + (self.page_num_rows - 1) * self.padding)
+            self.page_height - (self.page_num_rows * self.image_height + (self.page_num_rows - 1) * self.padding)
         ) // 2
         self.images_per_page = self.page_num_rows * self.page_num_cols
 
@@ -91,6 +92,25 @@ class Sheet:
             self.image_height,
         )
 
+    def _add_cut_lines_to_pdf(self):
+        if self.show_cut_lines:
+            for row_line in range(self.page_num_rows + 1):
+                line_y = self.vert_margin + row_line * (self.image_height + self.padding) - self.padding // 2
+
+                # Skip cut lines at the end of the page
+                if line_y in (0, self.page_height):
+                    continue
+
+                self.pdf.dashed_line(0, line_y, self.page_width, line_y)
+            for col_line in range(self.page_num_cols + 1):
+                line_x = self.hor_margin + col_line * (self.image_width + self.padding) - self.padding // 2
+
+                # Skip cut lines at the end of the page
+                if line_x in (0, self.page_width):
+                    continue
+
+                self.pdf.dashed_line(line_x, 0, line_x, self.page_height)
+
     def _add_back_page(self, filenames):
         self.pdf.add_page()
         for i, filename in enumerate(filenames):
@@ -128,6 +148,7 @@ class Sheet:
                 i += 1
                 is_page_end = i % self.images_per_page == 0
                 if is_page_end:
+                    self._add_cut_lines_to_pdf()
                     if self.back_type != BackType.NONE:
                         self._add_back_page(filenames_for_back)
                     filenames_for_back = []

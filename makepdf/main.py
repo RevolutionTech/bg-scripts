@@ -8,7 +8,7 @@ def make_telegram_pdfs():
     letters = Sheet("letters", 62, 89, back_type=BackType.UNIQUE, outer_margin=5)
     letters.generate_pdf()
 
-    words = Sheet("words", 89, 62, back_type=BackType.UNIQUE, outer_margin=5)
+    words = Sheet("words", 72, 52, back_type=BackType.UNIQUE, outer_margin=0, show_cut_lines=True)
     words.generate_pdf()
 
     goals = Sheet("goals", 89, 62, back_type=BackType.UNIQUE, outer_margin=5)
