@@ -1,19 +1,16 @@
 import csv
 import enum
 import os
+import tempfile
 from collections import defaultdict
 
+from PIL import Image
 from fpdf import FPDF
 
 from makepdf.constants import (
     SCRATCH_DIR, BASE_IMAGES_DIR, BACK_IMAGE_FILENAME, IMAGE_EXT, PAGE_SIZE_LETTER, PAGE_WIDTH, PAGE_HEIGHT,
     DEFAULT_OUTER_MARGIN
 )
-
-
-class Orientation(enum.Enum):
-    PORTRAIT = "portrait"
-    LANDSCAPE = "landscape"
 
 
 class BackType(enum.Enum):
@@ -28,34 +25,33 @@ class Sheet:
             image_type: str,
             image_width: int,
             image_height: int,
-            orientation: Orientation = Orientation.PORTRAIT,
             padding: int = 0,
             back_type: BackType = BackType.NONE,
             outer_margin: int = DEFAULT_OUTER_MARGIN,
-            show_cut_lines: bool = True
+            rotate_images: bool = False,
+            show_cut_lines: bool = True,
     ):
         self.output_filename = f"{image_type}.pdf"
         self.images_dir = os.path.join(BASE_IMAGES_DIR, image_type)
         self.back_type = back_type
 
-        self.image_width = image_width
-        self.image_height = image_height
+        self.image_width = image_height if rotate_images else image_width
+        self.image_height = image_width if rotate_images else image_height
         self.padding = padding
+        self.rotate_images = rotate_images
         self.show_cut_lines = show_cut_lines
 
-        self.page_height = PAGE_HEIGHT if orientation == Orientation.PORTRAIT else PAGE_WIDTH
-        self.page_width = PAGE_WIDTH if orientation == Orientation.PORTRAIT else PAGE_HEIGHT
-        self.page_num_rows = (self.page_height - 2 * outer_margin) // (self.image_height + self.padding)
-        self.page_num_cols = (self.page_width - 2 * outer_margin) // (self.image_width + self.padding)
+        self.page_num_rows = (PAGE_HEIGHT - 2 * outer_margin) // (self.image_height + self.padding)
+        self.page_num_cols = (PAGE_WIDTH - 2 * outer_margin) // (self.image_width + self.padding)
         self.hor_margin = (
-            self.page_width - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
+            PAGE_WIDTH - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
         ) // 2
         self.vert_margin = (
-            self.page_height - (self.page_num_rows * self.image_height + (self.page_num_rows - 1) * self.padding)
+            PAGE_HEIGHT - (self.page_num_rows * self.image_height + (self.page_num_rows - 1) * self.padding)
         ) // 2
         self.images_per_page = self.page_num_rows * self.page_num_cols
 
-        self.pdf = FPDF(orientation=orientation.value, format=PAGE_SIZE_LETTER)
+        self.pdf = FPDF(format=PAGE_SIZE_LETTER)
 
     def _get_quantities(self):
         quantities = defaultdict(lambda: 1)
@@ -84,13 +80,21 @@ class Sheet:
         if reverse:
             # Print images on reverse from right to left
             column = self.page_num_cols - column - 1
-        self.pdf.image(
-            full_filename,
-            self.hor_margin + column * (self.image_width + self.padding),
-            self.vert_margin + row * (self.image_height + self.padding),
-            self.image_width,
-            self.image_height,
-        )
+
+        with tempfile.NamedTemporaryFile() as f:
+            if self.rotate_images:
+                with Image.open(full_filename) as im:
+                    full_filename = f"{f.name}.{IMAGE_EXT}"
+                    rotated_im = im.rotate(90 if reverse else -90, expand=True)
+                    rotated_im.save(full_filename)
+
+            self.pdf.image(
+                full_filename,
+                self.hor_margin + column * (self.image_width + self.padding),
+                self.vert_margin + row * (self.image_height + self.padding),
+                self.image_width,
+                self.image_height,
+            )
 
     def _add_cut_lines_to_pdf(self):
         if self.show_cut_lines:
@@ -98,18 +102,18 @@ class Sheet:
                 line_y = self.vert_margin + row_line * (self.image_height + self.padding) - self.padding // 2
 
                 # Skip cut lines at the end of the page
-                if line_y in (0, self.page_height):
+                if line_y in (0, PAGE_HEIGHT):
                     continue
 
-                self.pdf.line(0, line_y, self.page_width, line_y)
+                self.pdf.line(0, line_y, PAGE_WIDTH, line_y)
             for col_line in range(self.page_num_cols + 1):
                 line_x = self.hor_margin + col_line * (self.image_width + self.padding) - self.padding // 2
 
                 # Skip cut lines at the end of the page
-                if line_x in (0, self.page_width):
+                if line_x in (0, PAGE_WIDTH):
                     continue
 
-                self.pdf.line(line_x, 0, line_x, self.page_height)
+                self.pdf.line(line_x, 0, line_x, PAGE_HEIGHT)
 
     def _add_back_page(self, filenames):
         self.pdf.add_page()

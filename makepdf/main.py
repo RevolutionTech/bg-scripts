@@ -1,11 +1,11 @@
-from makepdf.sheet import Orientation, BackType, Sheet
+from makepdf.sheet import BackType, Sheet
 
 
 def make_telegram_pdfs():
-    boards = Sheet("boards", 124, 200, orientation=Orientation.LANDSCAPE, padding=2, outer_margin=5, show_cut_lines=False)
+    boards = Sheet("boards", 124, 200, padding=2, outer_margin=5, rotate_images=True, show_cut_lines=False)
     boards.generate_pdf()
 
-    letters = Sheet("letters", 52, 72, orientation=Orientation.LANDSCAPE, back_type=BackType.UNIQUE, outer_margin=0)
+    letters = Sheet("letters", 52, 72, back_type=BackType.UNIQUE, outer_margin=0, rotate_images=True)
     letters.generate_pdf()
 
     words = Sheet("words", 72, 52, back_type=BackType.UNIQUE, outer_margin=0)
