@@ -5,16 +5,16 @@ def make_telegram_pdfs():
     boards = Sheet("boards", 124, 200, padding=2, outer_margin=5, rotate_images=True, show_cut_lines=False)
     boards.generate_pdf()
 
-    letters = Sheet("letters", 52, 72, back_type=BackType.UNIQUE, outer_margin=0, rotate_images=True)
+    letters = Sheet("letters", 69, 94, back_type=BackType.UNIQUE, outer_margin=0, rotate_images=True, cut_line_width=64, cut_line_height=89)
     letters.generate_pdf()
 
-    words = Sheet("words", 72, 52, back_type=BackType.UNIQUE, outer_margin=0)
+    words = Sheet("words", 94, 69, back_type=BackType.UNIQUE, outer_margin=0, cut_line_width=89, cut_line_height=64)
     words.generate_pdf()
 
-    goals = Sheet("goals", 72, 52, back_type=BackType.UNIQUE, outer_margin=0)
+    goals = Sheet("goals", 94, 69, back_type=BackType.UNIQUE, outer_margin=0, cut_line_width=89, cut_line_height=64)
     goals.generate_pdf()
 
-    solo = Sheet("solo", 52, 72, back_type=BackType.SHARED)
+    solo = Sheet("solo", 69, 94, back_type=BackType.SHARED, cut_line_width=64, cut_line_height=89)
     solo.generate_pdf()
 
 

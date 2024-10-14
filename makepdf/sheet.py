@@ -3,6 +3,7 @@ import enum
 import os
 import tempfile
 from collections import defaultdict
+from typing import Optional
 
 from PIL import Image
 from fpdf import FPDF
@@ -30,6 +31,8 @@ class Sheet:
             outer_margin: int = DEFAULT_OUTER_MARGIN,
             rotate_images: bool = False,
             show_cut_lines: bool = True,
+            cut_line_width: Optional[int] = None,
+            cut_line_height: Optional[int] = None,
     ):
         self.output_filename = f"{image_type}.pdf"
         self.images_dir = os.path.join(BASE_IMAGES_DIR, image_type)
@@ -40,6 +43,8 @@ class Sheet:
         self.padding = padding
         self.rotate_images = rotate_images
         self.show_cut_lines = show_cut_lines
+        self.cut_line_width = (cut_line_height if rotate_images else cut_line_width) or self.image_width
+        self.cut_line_height = (cut_line_width if rotate_images else cut_line_height) or self.image_height
 
         self.page_num_rows = (PAGE_HEIGHT - 2 * outer_margin) // (self.image_height + self.padding)
         self.page_num_cols = (PAGE_WIDTH - 2 * outer_margin) // (self.image_width + self.padding)
@@ -98,22 +103,36 @@ class Sheet:
 
     def _add_cut_lines_to_pdf(self):
         if self.show_cut_lines:
+            margin_x = (self.image_width - self.cut_line_width) // 2
+            margin_y = (self.image_height - self.cut_line_height) // 2
             for row_line in range(self.page_num_rows + 1):
-                line_y = self.vert_margin + row_line * (self.image_height + self.padding) - self.padding // 2
+                edge_y = self.vert_margin + row_line * (self.image_height + self.padding) - self.padding // 2
+                lines_y = []
+                if row_line > 0:
+                    lines_y.append(edge_y - margin_y)
+                if row_line < self.page_num_rows:
+                    lines_y.append(edge_y + margin_y)
 
-                # Skip cut lines at the end of the page
-                if line_y in (0, PAGE_HEIGHT):
-                    continue
+                for line_y in lines_y:
+                    # Skip cut lines at the edge of the page
+                    if line_y in (0, PAGE_HEIGHT):
+                        continue
 
-                self.pdf.line(0, line_y, PAGE_WIDTH, line_y)
+                    self.pdf.line(0, line_y, PAGE_WIDTH, line_y)
             for col_line in range(self.page_num_cols + 1):
-                line_x = self.hor_margin + col_line * (self.image_width + self.padding) - self.padding // 2
+                edge_x = self.hor_margin + col_line * (self.image_width + self.padding) - self.padding // 2
+                lines_x = []
+                if col_line > 0:
+                    lines_x.append(edge_x - margin_x)
+                if col_line < self.page_num_cols:
+                    lines_x.append(edge_x + margin_x)
 
-                # Skip cut lines at the end of the page
-                if line_x in (0, PAGE_WIDTH):
-                    continue
+                for line_x in lines_x:
+                    # Skip cut lines at the edge of the page
+                    if line_x in (0, PAGE_WIDTH):
+                        continue
 
-                self.pdf.line(line_x, 0, line_x, PAGE_HEIGHT)
+                    self.pdf.line(line_x, 0, line_x, PAGE_HEIGHT)
 
     def _add_back_page(self, filenames):
         self.pdf.add_page()
