@@ -2,10 +2,16 @@ from makepdf.sheet import BackType, Sheet
 
 
 def make_telegram_pdfs():
-    boards = Sheet("boards", 124, 200, padding=2, outer_margin=5, rotate_images=True, show_cut_lines=False)
+    boards = Sheet(
+        "boards", 124, 200, back_type=BackType.SHARED, padding=2, outer_margin=5,
+        rotate_images=True, show_cut_lines=False
+    )
     boards.generate_pdf()
 
-    letters = Sheet("letters", 69, 94, back_type=BackType.UNIQUE, outer_margin=0, rotate_images=True, cut_line_width=64, cut_line_height=89)
+    letters = Sheet(
+        "letters", 69, 94, back_type=BackType.UNIQUE, outer_margin=0,
+        rotate_images=True, cut_line_width=64, cut_line_height=89
+    )
     letters.generate_pdf()
 
     words = Sheet("words", 94, 69, back_type=BackType.UNIQUE, outer_margin=0, cut_line_width=89, cut_line_height=64)
