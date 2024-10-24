@@ -26,13 +26,13 @@ class Sheet:
             image_type: str,
             image_width: int,
             image_height: int,
+            cut_width: Optional[int] = None,
+            cut_height: Optional[int] = None,
             padding: int = 0,
             back_type: BackType = BackType.NONE,
             outer_margin: int = DEFAULT_OUTER_MARGIN,
             rotate_images: bool = False,
             show_cut_lines: bool = True,
-            cut_line_width: Optional[int] = None,
-            cut_line_height: Optional[int] = None,
     ):
         self.output_filename = f"{image_type}.pdf"
         self.images_dir = os.path.join(BASE_IMAGES_DIR, image_type)
@@ -43,8 +43,8 @@ class Sheet:
         self.padding = padding
         self.rotate_images = rotate_images
         self.show_cut_lines = show_cut_lines
-        self.cut_line_width = (cut_line_height if rotate_images else cut_line_width) or self.image_width
-        self.cut_line_height = (cut_line_width if rotate_images else cut_line_height) or self.image_height
+        self.cut_width = (cut_height if rotate_images else cut_width) or self.image_width
+        self.cut_height = (cut_width if rotate_images else cut_height) or self.image_height
 
         self.page_num_rows = (PAGE_HEIGHT - 2 * outer_margin) // (self.image_height + self.padding)
         self.page_num_cols = (PAGE_WIDTH - 2 * outer_margin) // (self.image_width + self.padding)
@@ -103,8 +103,8 @@ class Sheet:
 
     def _add_cut_lines_to_pdf(self):
         if self.show_cut_lines:
-            margin_x = (self.image_width - self.cut_line_width) // 2
-            margin_y = (self.image_height - self.cut_line_height) // 2
+            margin_x = (self.image_width - self.cut_width) // 2
+            margin_y = (self.image_height - self.cut_height) // 2
             for row_line in range(self.page_num_rows + 1):
                 edge_y = self.vert_margin + row_line * (self.image_height + self.padding) - self.padding // 2
                 lines_y = []
