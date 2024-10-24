@@ -1,5 +1,6 @@
 import csv
 import enum
+import math
 import os
 import tempfile
 from collections import defaultdict
@@ -46,13 +47,13 @@ class Sheet:
         self.cut_width = (cut_height if rotate_images else cut_width) or self.image_width
         self.cut_height = (cut_width if rotate_images else cut_height) or self.image_height
 
-        self.page_num_rows = (PAGE_HEIGHT - 2 * outer_margin) // (self.image_height + self.padding)
-        self.page_num_cols = (PAGE_WIDTH - 2 * outer_margin) // (self.image_width + self.padding)
+        self.page_num_rows = (PAGE_HEIGHT - 2 * outer_margin) // (self.cut_height + self.padding)
+        self.page_num_cols = (PAGE_WIDTH - 2 * outer_margin) // (self.cut_width + self.padding)
         self.hor_margin = (
-            PAGE_WIDTH - (self.page_num_cols * self.image_width + (self.page_num_cols - 1) * self.padding)
+            PAGE_WIDTH - (self.page_num_cols * self.cut_width + (self.page_num_cols - 1) * self.padding)
         ) // 2
         self.vert_margin = (
-            PAGE_HEIGHT - (self.page_num_rows * self.image_height + (self.page_num_rows - 1) * self.padding)
+            PAGE_HEIGHT - (self.page_num_rows * self.cut_height + (self.page_num_rows - 1) * self.padding)
         ) // 2
         self.images_per_page = self.page_num_rows * self.page_num_cols
 
@@ -86,53 +87,59 @@ class Sheet:
             # Print images on reverse from right to left
             column = self.page_num_cols - column - 1
 
+        image_requires_crop = self.cut_width != self.image_width or self.cut_height != self.image_height
+        image_requires_alteration = image_requires_crop or self.rotate_images
         with tempfile.NamedTemporaryFile() as f:
-            if self.rotate_images:
+            if image_requires_alteration:
                 with Image.open(full_filename) as im:
                     full_filename = f"{f.name}.{IMAGE_EXT}"
-                    rotated_im = im.rotate(90 if reverse else -90, expand=True)
-                    rotated_im.save(full_filename)
+                    if self.rotate_images:
+                        im = im.rotate(90 if reverse else -90, expand=True)
+                    if image_requires_crop:
+                        assert round(im.width / self.image_width, 1) == round(im.height / self.image_height, 1)
+                        pixels_to_points_ratio = round(im.width / self.image_width, 1)
+                        cut_margin_width = math.floor(
+                            pixels_to_points_ratio * ((self.image_width - self.cut_width) / 2)
+                        )
+                        cut_margin_height = math.floor(
+                            pixels_to_points_ratio * ((self.image_height - self.cut_height) / 2)
+                        )
+                        im = im.crop(
+                            (
+                                cut_margin_width,
+                                cut_margin_height,
+                                im.width - cut_margin_width,
+                                im.height - cut_margin_height,
+                            )
+                        )
+                    im.save(full_filename)
 
             self.pdf.image(
                 full_filename,
-                self.hor_margin + column * (self.image_width + self.padding),
-                self.vert_margin + row * (self.image_height + self.padding),
-                self.image_width,
-                self.image_height,
+                self.hor_margin + column * (self.cut_width + self.padding),
+                self.vert_margin + row * (self.cut_height + self.padding),
+                self.cut_width,
+                self.cut_height,
             )
 
     def _add_cut_lines_to_pdf(self):
         if self.show_cut_lines:
-            margin_x = (self.image_width - self.cut_width) // 2
-            margin_y = (self.image_height - self.cut_height) // 2
             for row_line in range(self.page_num_rows + 1):
-                edge_y = self.vert_margin + row_line * (self.image_height + self.padding) - self.padding // 2
-                lines_y = []
-                if row_line > 0:
-                    lines_y.append(edge_y - margin_y)
-                if row_line < self.page_num_rows:
-                    lines_y.append(edge_y + margin_y)
+                line_y = self.vert_margin + row_line * (self.cut_height + self.padding) - self.padding // 2
 
-                for line_y in lines_y:
-                    # Skip cut lines at the edge of the page
-                    if line_y in (0, PAGE_HEIGHT):
-                        continue
+                # Skip cut lines at the edge of the page
+                if line_y in (0, PAGE_HEIGHT):
+                    continue
 
-                    self.pdf.line(0, line_y, PAGE_WIDTH, line_y)
+                self.pdf.line(0, line_y, PAGE_WIDTH, line_y)
             for col_line in range(self.page_num_cols + 1):
-                edge_x = self.hor_margin + col_line * (self.image_width + self.padding) - self.padding // 2
-                lines_x = []
-                if col_line > 0:
-                    lines_x.append(edge_x - margin_x)
-                if col_line < self.page_num_cols:
-                    lines_x.append(edge_x + margin_x)
+                line_x = self.hor_margin + col_line * (self.cut_width + self.padding) - self.padding // 2
 
-                for line_x in lines_x:
-                    # Skip cut lines at the edge of the page
-                    if line_x in (0, PAGE_WIDTH):
-                        continue
+                # Skip cut lines at the edge of the page
+                if line_x in (0, PAGE_WIDTH):
+                    continue
 
-                    self.pdf.line(line_x, 0, line_x, PAGE_HEIGHT)
+                self.pdf.line(line_x, 0, line_x, PAGE_HEIGHT)
 
     def _add_back_page(self, filenames):
         self.pdf.add_page()
