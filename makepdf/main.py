@@ -3,8 +3,8 @@ from makepdf.sheet import BackType, Sheet
 
 def make_telegram_pdfs():
     boards = Sheet(
-        "boards", image_width=124, image_height=200, back_type=BackType.SHARED, padding=2, outer_margin=5,
-        rotate_images=True, show_cut_lines=False
+        "boards", image_width=200, image_height=124, back_type=BackType.NONE, padding=2, outer_margin=5,
+        show_cut_lines=False
     )
     boards.generate_pdf()
 
