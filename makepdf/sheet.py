@@ -24,6 +24,7 @@ class BackType(enum.Enum):
 class Sheet:
     def __init__(
             self,
+            image_group: str,
             image_type: str,
             image_width: int,
             image_height: int,
@@ -36,7 +37,7 @@ class Sheet:
             show_cut_lines: bool = True,
     ):
         self.output_filename = f"{image_type}.pdf"
-        self.images_dir = os.path.join(BASE_IMAGES_DIR, image_type)
+        self.images_dir = os.path.join(BASE_IMAGES_DIR, image_group, image_type)
         self.back_type = back_type
 
         self.image_width = image_height if rotate_images else image_width
@@ -189,6 +190,6 @@ class Sheet:
             if self.back_type != BackType.NONE:
                 self._add_back_page(filenames_for_back)
 
-        self.pdf.output(os.path.join(SCRATCH_DIR, self.output_filename), "F")
+        self.pdf.output(os.path.join(self.images_dir, self.output_filename), "F")
 
         print("PDF generated successfully!")
