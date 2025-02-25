@@ -59,6 +59,12 @@ def make_semantic_sorting_pdfs():
     )
     words.generate_pdf()
 
+    secret_words = Sheet(
+        "semantic-sorting", "secret-words", image_width=94, image_height=69, cut_width=89, cut_height=64,
+        back_type=BackType.SHARED, outer_margin=0
+    )
+    secret_words.generate_pdf()
+
 
 def runscript():
     make_telegram_pdfs()
