@@ -4,7 +4,7 @@ import math
 import os
 import tempfile
 from collections import defaultdict
-from typing import Optional
+from typing import Optional, Tuple
 
 from PIL import Image
 from fpdf import FPDF
@@ -34,7 +34,8 @@ class Sheet:
             back_type: BackType = BackType.NONE,
             outer_margin: int = DEFAULT_OUTER_MARGIN,
             rotate_images: bool = False,
-            show_cut_lines: bool = True,
+            bleed_color: Optional[Tuple[int, int, int]] = None,
+            show_cut_lines: bool = True
     ):
         self.output_filename = f"{image_type}.pdf"
         self.images_dir = os.path.join(BASE_IMAGES_DIR, image_group, image_type)
@@ -44,6 +45,7 @@ class Sheet:
         self.image_height = image_width if rotate_images else image_height
         self.padding = padding
         self.rotate_images = rotate_images
+        self.bleed_color = bleed_color
         self.show_cut_lines = show_cut_lines
         self.cut_width = (cut_height if rotate_images else cut_width) or self.image_width
         self.cut_height = (cut_width if rotate_images else cut_height) or self.image_height
@@ -123,6 +125,12 @@ class Sheet:
                 self.cut_height,
             )
 
+    def _add_bleed_color_to_pdf(self):
+        if self.bleed_color:
+            self.pdf.set_fill_color(*self.bleed_color)
+            self.pdf.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT, "F")
+            self.pdf.set_fill_color(0)
+
     def _add_cut_lines_to_pdf(self):
         if self.show_cut_lines:
             for row_line in range(self.page_num_rows + 1):
@@ -144,6 +152,7 @@ class Sheet:
 
     def _add_back_page(self, filenames):
         self.pdf.add_page()
+        self._add_bleed_color_to_pdf()
         for i, filename in enumerate(filenames):
             if self.back_type == BackType.UNIQUE:
                 back_filename = os.path.join(self.images_dir, BACK_IMAGE_FILENAME, filename)
@@ -169,6 +178,7 @@ class Sheet:
                 is_page_start = i % self.images_per_page == 0
                 if is_page_start:
                     self.pdf.add_page()
+                    self._add_bleed_color_to_pdf()
 
                 # Insert a card into the page
                 image_for_page = i % self.images_per_page

@@ -61,7 +61,7 @@ def make_semantic_sorting_pdfs():
 
     secret_words = Sheet(
         "semantic-sorting", "secret-words", image_width=94, image_height=69, cut_width=89, cut_height=64,
-        back_type=BackType.SHARED, outer_margin=0
+        back_type=BackType.SHARED, outer_margin=0, bleed_color=(102, 238, 238)
     )
     secret_words.generate_pdf()
 
