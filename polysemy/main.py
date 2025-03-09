@@ -1,5 +1,7 @@
 import csv
+import itertools
 import os
+from collections import Counter
 
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
@@ -15,16 +17,9 @@ def is_canonical_lemma(word):
     synsets = wn.synsets(word)
     if not synsets:
         return False
-    for synset in synsets:
-        if synset.pos() == wn.VERB:
-            # Prefer verbs if it's an option
-            pos = wn.VERB
-            break
-    else:
-        # If no verbs, just use the most common POS
-        pos = synsets[0].pos()
-    lemma = wnl.lemmatize(word, pos=pos)
-    return lemma == word
+    lemma_counts = Counter(itertools.chain.from_iterable([synset.lemma_names() for synset in synsets]))
+    most_common_form = lemma_counts.most_common(1)[0][0]
+    return word == most_common_form
 
 
 def filter_lemmas(words):

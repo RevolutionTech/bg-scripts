@@ -54,7 +54,7 @@ def make_category_matchmaker_pdfs():
 
 def make_semantic_sorting_pdfs():
     words = Sheet(
-        "semantic-sorting", "words", image_width=94, image_height=69, cut_width=89, cut_height=64,
+        "semantic-sorting", "words", image_width=81, image_height=81, cut_width=76, cut_height=76,
         back_type=BackType.SHARED, outer_margin=0
     )
     words.generate_pdf()
