@@ -5,9 +5,10 @@ description = "Various scripts for board game prototypes"
 authors = ["Lucas Connors <lucas.revolutiontech@gmail.com>"]
 license = "ISC"
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.13"
 nltk = "^3.9.1"
 fpdf = "^1.7.2"
 wordfreq = "^3.1.1"
