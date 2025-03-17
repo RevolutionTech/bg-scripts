@@ -81,6 +81,42 @@ def calculate_similarities(polysemous_words):
                 csvwriter.writerow([word, polysemous_word, similarity])
 
 
+def create_word_groupings(min_similarity, max_similarity, once_only=True):
+    print(f"{min_similarity=} {max_similarity=}")
+
+    # First we identify all of the matching similarities
+    matching = set()
+    filename = os.path.join(SCRATCH_DIR, "word-similarities.csv")
+    with open(filename, "r") as f:
+        csvreader = csv.reader(f)
+        next(csvreader)  # skip header
+        for *words, similarity in csvreader:
+            if min_similarity <= float(similarity) <= max_similarity:
+                matching.add(tuple(words))
+
+    # Then we pick a polysemous word and eliminate all other concrete words that work well with it
+    # Continue until all polysemous words have been picked
+    concrete_words = set()
+    banned_concrete_words = set()
+    polysemous_words = set()
+    for concrete_word, polysemous_word in matching:
+        if len(polysemous_words) >= 10:
+            break
+        if concrete_word in banned_concrete_words:
+            continue
+        else:
+            concrete_words.add(concrete_word)
+            polysemous_words.add(polysemous_word)
+            if once_only:
+                for cw, pw in matching:
+                    if pw == polysemous_word and cw != concrete_word:
+                        banned_concrete_words.add(cw)
+
+    print(f"{concrete_words=}")
+    print(f"{polysemous_words=}")
+
+
+
 def runscript():
     top_10000 = top_n_list("en", 10000)
     super_common_words = top_n_list("en", MOST_COMMON_WORDS_REMOVED)
@@ -90,6 +126,9 @@ def runscript():
     sorted_words = sorted(polysemous_lemmas, key=lambda x: x[1], reverse=True)
     write_csv(sorted_words)
     calculate_similarities(sorted_words)
+    create_word_groupings(0.325, 1)
+    create_word_groupings(0.25, 0.3249)
+    create_word_groupings(0, 0.2499, once_only=False)
 
 
 if __name__ == "__main__":
