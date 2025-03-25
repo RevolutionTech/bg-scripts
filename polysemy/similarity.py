@@ -23,7 +23,7 @@ def calculate_similarities(concrete_words, polysemous_words):
         csvwriter = csv.writer(f)
         csvwriter.writerow(["Concrete Word", "Polysemous Word", "Similarity"])
         for word in concrete_words:
-            for polysemous_word, _ in polysemous_words:
+            for polysemous_word in polysemous_words:
                 try:
                     similarity = sbert_similarity(polysemous_word, word)
                 except KeyError:

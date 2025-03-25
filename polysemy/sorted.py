@@ -7,6 +7,7 @@ from nltk.corpus import wordnet as wn
 
 from polysemy.common import get_common_words
 from polysemy.constants import SCRATCH_DIR, MIN_NUM_DEFINITIONS
+from polysemy.csvreader import read_word_list
 
 
 def is_canonical_lemma(word):
@@ -28,18 +29,25 @@ def filter_polysemous_words(words):
     ]
 
 
-def write_csv(words):
-    filename = os.path.join(SCRATCH_DIR, "polysemous-words.csv")
+def write_csv(filename, words):
     with open(filename, "w") as f:
         csvwriter = csv.writer(f)
         csvwriter.writerow(["Word", "Num Definitions"])
         csvwriter.writerows(words)
 
 
-def generate_sorted_words():
+def generate_sorted_words(out_filename):
     vocab = get_common_words()
     vocab_lemmas = filter_lemmas(vocab)
     polysemous_lemmas = filter_polysemous_words(vocab_lemmas)
     sorted_words = sorted(polysemous_lemmas, key=lambda x: x[1], reverse=True)
-    write_csv(sorted_words)
-    return sorted_words
+    write_csv(out_filename, sorted_words)
+    return [word for word, _ in sorted_words]
+
+
+def read_or_generate_sorted_words():
+    filename = os.path.join(SCRATCH_DIR, "polysemous-words.csv")
+    if os.path.exists(filename):
+        return read_word_list(filename)
+    else:
+        return generate_sorted_words(filename)
